@@ -1,5 +1,0 @@
-//imagery
-
-//shapes
-
-//decoration
