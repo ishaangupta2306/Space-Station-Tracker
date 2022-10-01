@@ -14,3 +14,7 @@ app.listen(port, () => {
 app.get("/model", (req, res) => {
   res.sendFile(path.join(__dirname + "/model/iss.dae"));
 });
+
+app.get("/space.jpeg", (req, res) => {
+  res.sendFile(path.join(__dirname + "/space.jpeg"));
+});
