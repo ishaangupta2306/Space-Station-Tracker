@@ -64,6 +64,9 @@
               modelLayer.addRenderable(scene); // Add the Collada model to the renderable layer within a callback.
               modelScene = scene;
             });
+
+            wwd.navigator.lookAtLocation.latitude = lat;
+            wwd.navigator.lookAtLocation.longitude = lon;
           });
         }
 
