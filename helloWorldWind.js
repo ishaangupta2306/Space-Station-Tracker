@@ -1,41 +1,14 @@
-<!DOCTYPE html>
-<!-- This is a very simple example of using Web WorldWind. -->
-<html>
-  <head lang="en">
-    <meta charset="UTF-8" />
-    <title>WorldWind Example</title>
-    <!-- Include the Web WorldWind library. -->
-    <script
-      src="https://files.worldwind.arc.nasa.gov/artifactory/web/0.9.0/worldwind.min.js"
-      type="text/javascript"
-    ></script>
-  </head>
-  <body>
-    <div style="position: absolute; top: 50px; left: 50px">
-      <!-- Create a canvas for Web WorldWind. -->
-      <canvas id="canvasOne" width="1024" height="768">
-        Your browser does not support HTML5 Canvas.
-      </canvas>
-    </div>
-    <script>
-      // Register an event listener to be called when the page is loaded.
-      window.addEventListener("load", eventWindowLoaded, false);
+// Create a WorldWindow for the canvas.
+var wwd = new WorldWind.WorldWindow("canvasOne");
 
-      // Define the event listener to initialize Web WorldWind.
-      function eventWindowLoaded() {
-        // Create a WorldWindow for the canvas.
-        var wwd = new WorldWind.WorldWindow("canvasOne");
+wwd.addLayer(new WorldWind.BMNGOneImageLayer());
+wwd.addLayer(new WorldWind.BMNGLandsatLayer());
 
-        // Add some image layers to the WorldWindow's globe.
-        wwd.addLayer(new WorldWind.BMNGOneImageLayer());
-        wwd.addLayer(new WorldWind.BMNGLandsatLayer());
+wwd.addLayer(new WorldWind.CompassLayer());
+wwd.addLayer(new WorldWind.CoordinatesDisplayLayer(wwd));
+wwd.addLayer(new WorldWind.ViewControlsLayer(wwd));
 
-        // Add a compass, a coordinates display and some view controls to the WorldWindow.
-        wwd.addLayer(new WorldWind.CompassLayer());
-        wwd.addLayer(new WorldWind.CoordinatesDisplayLayer(wwd));
-        wwd.addLayer(new WorldWind.ViewControlsLayer(wwd));
-
-        // Add a placemark
+// Add a placemark
 var placemarkLayer = new WorldWind.RenderableLayer();
 wwd.addLayer(placemarkLayer);
 
@@ -80,8 +53,35 @@ var polygon = new WorldWind.Polygon(boundaries, polygonAttributes);
 polygon.extrude = true;
 polygonLayer.addRenderable(polygon);
 
+// Add a COLLADA model
+var modelLayer = new WorldWind.RenderableLayer();
+wwd.addLayer(modelLayer);
 
-      }
-    </script>
-  </body>
-</html>
+var position = new WorldWind.Position(10.0, -125.0, 800000.0);
+var config = {dirPath: WorldWind.configuration.baseUrl + 'examples/collada_models/duck/'};
+
+var colladaLoader = new WorldWind.ColladaLoader(position, config);
+colladaLoader.load("duck.dae", function (colladaModel) {
+    colladaModel.scale = 9000;
+    modelLayer.addRenderable(colladaModel);
+});
+
+// Add WMS imagery
+var serviceAddress = "https://neo.sci.gsfc.nasa.gov/wms/wms?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0";
+var layerName = "MOD_LSTD_CLIM_M";
+
+var createLayer = function (xmlDom) {
+    var wms = new WorldWind.WmsCapabilities(xmlDom);
+    var wmsLayerCapabilities = wms.getNamedLayer(layerName);
+    var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(wmsLayerCapabilities);
+    var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
+    wwd.addLayer(wmsLayer);
+};
+
+var logError = function (jqXhr, text, exception) {
+    console.log("There was a failure retrieving the capabilities document: " +
+        text +
+    " exception: " + exception);
+};
+
+$.get(serviceAddress).done(createLayer).fail(logError);
