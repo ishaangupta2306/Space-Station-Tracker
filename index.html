@@ -12,14 +12,13 @@
   </head>
   <body>
     <div style="position: absolute; top: 50px; left: 50px">
-        <style>
-            body {
-            background-image: url("./space.jpeg");
-            background-repeat: no-repeat, repeat;
-            background-color: #000;
-            }
-             
-            </style>
+      <style>
+        body {
+          background-image: url("./space.jpeg");
+          background-repeat: no-repeat, repeat;
+          background-color: #000;
+        }
+      </style>
       <!-- Create a canvas for Web WorldWind. -->
       <canvas id="canvasOne" width="1024" height="768">
         Your browser does not support HTML5 Canvas.
@@ -47,43 +46,52 @@
         var modelLayer = new WorldWind.RenderableLayer("Model");
         wwd.addLayer(modelLayer);
 
-        function move(){
-        var data = fetchAsync().then(function(result){     
-            console.log(result)
-            console.log(result['iss_position'])
-            lat = result['iss_position']['latitude']
-            lon = result['iss_position']['longitude']
-            var position = new WorldWind.Position(lat, lon, 1000e3);
-        // Create a Collada loader and direct it to the desired directory and .dae file.
-        var colladaLoader = new WorldWind.ColladaLoader(position);
-        colladaLoader.init({ dirPath: "./model/" });
-        var duckScene = null;
-        colladaLoader.load("", function (scene) {
-          scene.scale = 50000;
-          modelLayer.addRenderable(scene); // Add the Collada model to the renderable layer within a callback.
-          duckScene = scene;
-        });
-        })     
-      }
+        var modelScene, colladaLoader;
 
-      var lat, lon;
-        async function fetchAsync () {
-            let response = await fetch('http://api.open-notify.org/iss-now.json');
-            let data = await response.json();
-            return data
+        function init() {
+          var data = fetchAsync().then(function (result) {
+            console.log(result);
+            console.log(result["iss_position"]);
+            lat = result["iss_position"]["latitude"];
+            lon = result["iss_position"]["longitude"];
+            var position = new WorldWind.Position(lat, lon, 1000e3);
+            // Create a Collada loader and direct it to the desired directory and .dae file.
+            colladaLoader = new WorldWind.ColladaLoader(position);
+            colladaLoader.init({ dirPath: "./model/" });
+            duckScene = null;
+            colladaLoader.load("", function (scene) {
+              scene.scale = 20000;
+              modelLayer.addRenderable(scene); // Add the Collada model to the renderable layer within a callback.
+              modelScene = scene;
+            });
+          });
         }
 
+        var lat, lon;
+        async function fetchAsync() {
+          let response = await fetch("http://api.open-notify.org/iss-now.json");
+          let data = await response.json();
+          return data;
+        }
+
+        function move() {
+          var data = fetchAsync().then(function (result) {
+            lat = result["iss_position"]["latitude"];
+            lon = result["iss_position"]["longitude"];
+            var position = new WorldWind.Position(lat, lon, 1000e3);
+
+            modelScene.position = position;
+            wwd.redraw();
+          });
+        }
+
+        init();
         // Define a position for locating the model
-        
-        var intervalId = window.setInterval(function(){
-  move()
+
+        var intervalId = window.setInterval(function () {
+          move();
         }, 3000);
-        
       }
-
-     
-
-      
     </script>
   </body>
 </html>
