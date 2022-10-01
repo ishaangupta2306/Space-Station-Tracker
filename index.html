@@ -47,14 +47,7 @@
         var modelLayer = new WorldWind.RenderableLayer("Model");
         wwd.addLayer(modelLayer);
 
-        // Define a position for locating the model
-        var lat, lon;
-        async function fetchAsync () {
-            let response = await fetch('http://api.open-notify.org/iss-now.json');
-            let data = await response.json();
-            return data
-        }
-   
+        function move(){
         var data = fetchAsync().then(function(result){     
             console.log(result)
             console.log(result['iss_position'])
@@ -72,6 +65,25 @@
         });
         })     
       }
+
+      var lat, lon;
+        async function fetchAsync () {
+            let response = await fetch('http://api.open-notify.org/iss-now.json');
+            let data = await response.json();
+            return data
+        }
+
+        // Define a position for locating the model
+        
+        var intervalId = window.setInterval(function(){
+  move()
+        }, 3000);
+        
+      }
+
+     
+
+      
     </script>
   </body>
 </html>
