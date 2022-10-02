@@ -91,6 +91,9 @@
         const form = document.getElementById("date-time");
         form.addEventListener("submit", onSubmit);
 
+        const button = document.getElementById("toggleButton");
+        button.addEventListener("click", calculateTrajectory);
+
         function onSubmit(event) {
           event.preventDefault();
           moving = false;
@@ -121,6 +124,12 @@
               console.log(err);
             });
         }
+
+        function calculateTrajectory() {
+          axios.get("http://localhost:3000/trajectory").then((res) => {
+            console.log(res.data);
+          });
+        }
       }
     </script>
 
@@ -149,8 +158,6 @@
                 id="party"
                 type="datetime-local"
                 name="partydate"
-                min="2017-06-01T08:30"
-                max="2017-06-30T16:30"
                 required
               />
               <input type="submit" value="Search" />
@@ -158,6 +165,17 @@
             </div>
           </form>
 
+          <form id="toggle">
+            <div align="center">
+              <input
+                id="toggleButton"
+                type="button"
+                name="button"
+                value="Calculate Trajectory"
+              />
+              <span class="validity"></span>
+            </div>
+          </form>
           <script>
             function myFunction() {
               document
