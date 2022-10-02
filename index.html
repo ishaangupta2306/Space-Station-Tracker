@@ -96,7 +96,7 @@
         init();
         // Define a position for locating the model
 
-        var intervalId = window.setInterval(function () {
+        var intervalId = window.setInterval(() => {
           if (moving) move();
         }, 3000);
 
@@ -138,9 +138,12 @@
         }
 
         function calculateTrajectory() {
-          axios.get("http://localhost:3000/trajectory").then((res) => {
-            drawTrajectory(res.data);
-          });
+          axios
+            .get("http://localhost:3000/trajectory")
+            .then((res) => {
+              drawTrajectory(res.data);
+            })
+            .catch((err) => console.log(err));
         }
 
         function drawTrajectory(data) {
@@ -170,6 +173,30 @@
           wwd.addLayer(pathLayer);
           wwd.redraw();
         }
+
+        function drawSatellites() {
+          var satteliteLayer = new WorldWind.RenderableLayer("Satellites");
+
+          axios.get("http://localhost:3000/sattelite").then((res) => {
+            console.log(res.data);
+
+            res.data.map((data) => {
+              var position = new WorldWind.Position(
+                data.position.lat,
+                data.position.lng,
+                1000e3
+              );
+
+              var placemark = new WorldWind.Placemark(position, false);
+              placemark.label = data.name;
+              placemark.alwaysOnTop = true;
+              satteliteLayer.addRenderable(placemark);
+              wwd.addLayer(satteliteLayer);
+              wwd.redraw();
+            });
+          });
+        }
+        drawSatellites();
       }
     </script>
 

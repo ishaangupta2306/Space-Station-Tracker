@@ -36,23 +36,61 @@ app.get("/trajectory", (req, res) => {
   getTrajectory().then((trajectory) => res.send(trajectory));
 });
 
+app.get("/sattelite", async (req, res) => {
+  const response = [];
+
+  const tleData = await getTle();
+
+  console.log(tleData);
+  tleData.map((item) => {
+    var position = getLatLng(item, null);
+    console.log(item);
+    var result = {
+      name: item.substring(0, item.indexOf("\n")),
+      position: position,
+    };
+
+    response.push(result);
+  });
+
+  res.send(response);
+});
+
 const tle = `ISS (ZARYA)             
 1 25544U 98067A   22275.03521722  .00046746  00000+0  83199-3 0  9999
 2 25544  51.6418 167.2146 0003169 263.1060 229.2717 15.49661688361757`;
 
 function getTle() {
-  axios
+  var tleData = [];
+  return axios
     .get(
       "https://celestrak.org/NORAD/elements/gp.php?GROUP=stations&FORMAT=tle"
     )
     .then((response) => {
-      console.log(response.data);
+      const data = response.data.split(/\r?\n/);
+      for (var i = 0; i < data.length; i += 3) {
+        var name = data[i].trim();
+        name += "\n";
+        var one = (data[i + 1] += "\n");
+        var two = data[i + 2];
+
+        var tle = name.concat(one).concat(two);
+
+        tleData.push(tle);
+      }
+      return tleData;
     });
 }
 
-function getLatLng(time) {
-  const latLongObj = getLatLngObj(tle, time);
-  return latLongObj;
+function getLatLng(tle, time) {
+  try {
+    const latLongObj = getLatLngObj(tle, time);
+    return latLongObj;
+  } catch (e) {
+    console.log(e);
+  }
+
+  return null;
 }
 
 async function getTrajectory() {
