@@ -28,7 +28,8 @@ app.get("/space.jpeg", (req, res) => {
 
 app.post("/position", jsonParser, (req, res) => {
   console.log(req.body.data);
-  const result = getLatLng(req.body.data);
+
+  const result = getLatLng(tleData[0], req.body.data);
   res.send(result);
 });
 
@@ -36,28 +37,64 @@ app.get("/trajectory", (req, res) => {
   getTrajectory().then((trajectory) => res.send(trajectory));
 });
 
-const tle = `ISS (ZARYA)
-1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
-2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
+app.get("/sattelite", async (req, res) => {
+  const response = [];
+
+  const tleData = await getTle();
+  tleData.map((item) => {
+    var position = getLatLng(item, null);
+    var result = {
+      name: item.substring(0, item.indexOf("\n")),
+      position: position,
+    };
+
+    response.push(result);
+  });
+
+  res.send(response);
+});
+
+const tle = `ISS (ZARYA)             
+1 25544U 98067A   22275.03521722  .00046746  00000+0  83199-3 0  9999
+2 25544  51.6418 167.2146 0003169 263.1060 229.2717 15.49661688361757`;
+
+var tleData = [];
 
 function getTle() {
-  axios
+  return axios
     .get(
       "https://celestrak.org/NORAD/elements/gp.php?GROUP=stations&FORMAT=tle"
     )
     .then((response) => {
-      console.log(response.data);
+      const data = response.data.split(/\r?\n/);
+      for (var i = 0; i < data.length; i += 3) {
+        var name = data[i].trim();
+        name += "\n";
+        var one = (data[i + 1] += "\n");
+        var two = data[i + 2];
+
+        var tle = name.concat(one).concat(two);
+
+        tleData.push(tle);
+      }
+      return tleData;
     });
 }
 
-function getLatLng(time) {
-  const latLongObj = getLatLngObj(tle, time);
-  return latLongObj;
+function getLatLng(tle, time) {
+  try {
+    const latLongObj = getLatLngObj(tle, time);
+    return latLongObj;
+  } catch (e) {
+    console.log(e);
+  }
+
+  return null;
 }
 
 async function getTrajectory() {
   return await getGroundTracks({
-    tle: tle,
+    tle: tleData[0],
     startTimeMs: Date.now(),
     stepMS: 1000,
     isLngLatFormat: true,
