@@ -54,7 +54,7 @@
             colladaLoader.init({ dirPath: "./model/" });
             duckScene = null;
             colladaLoader.load("", function (scene) {
-              scene.scale = 20000;
+              scene.scale = 30000;
               modelLayer.addRenderable(scene); // Add the Collada model to the renderable layer within a callback.
               modelScene = scene;
             });
@@ -127,8 +127,36 @@
 
         function calculateTrajectory() {
           axios.get("http://localhost:3000/trajectory").then((res) => {
-            console.log(res.data);
+            drawTrajectory(res.data);
           });
+        }
+
+        function drawTrajectory(data) {
+          console.log(data);
+
+          const prev = data[0];
+          const curr = data[1];
+          const next = data[2];
+
+          var pathLayer = new WorldWind.RenderableLayer("Path");
+          //var shapeAttributes = new WorldWind.ShapeAttributes();
+
+          var pathPositions = [];
+
+          curr.map((item) => {
+            if (Array.isArray(item)) {
+              var position = new WorldWind.Position(item[0], item[1], 1000e3);
+              pathPositions.push(position);
+            }
+          });
+
+          var path = new WorldWind.Path(pathPositions, null);
+
+          path.pathType = WorldWind.GREAT_CIRCLE;
+
+          pathLayer.addRenderable(path);
+          wwd.addLayer(pathLayer);
+          wwd.redraw();
         }
       }
     </script>
