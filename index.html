@@ -26,6 +26,18 @@
         wwd.addLayer(new WorldWind.BMNGLandsatLayer());
         wwd.addLayer(new WorldWind.AtmosphereLayer());
         // Add a compass, a coordinates display and some view controls to the WorldWindow.
+
+        const compassLayer = new WorldWind.CompassLayer();
+        const offset = new WorlWind.Offset(
+          WOrlWind.OFFSET_PIXELS,
+          10,
+          WorldWind.OFFSET_PIXELS,
+          10
+        );
+        const compass = new WorldWind.Compass(offset);
+
+        compassLayer.add(compass);
+        wwd.addLayer(compassLayer);
         wwd.addLayer(new WorldWind.CompassLayer());
         wwd.addLayer(new WorldWind.CoordinatesDisplayLayer(wwd));
         wwd.addLayer(new WorldWind.ViewControlsLayer(wwd));
@@ -168,6 +180,9 @@
             background-image: url("./space.jpeg");
             background-repeat: no-repeat, repeat;
             background-color: #000;
+            width: 100%;
+            height: 100%;
+            padding: 5%;
           }
         </style>
         <!-- Create a canvas for Web WorldWind. -->
@@ -226,6 +241,9 @@
         #c2 {
           background: slategrey;
           float: bottom;
+          position: fixed;
+          margin-top: 35%;
+          margin-left: 50%;
         }
       </style>
     </div>
