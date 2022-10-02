@@ -1,10 +1,14 @@
 const path = require("path");
 const express = require("express");
+const bodyParser = require("body-parser");
 const app = express();
 const port = 3000;
 
 const axios = require("axios");
 const { getLatLngObj } = require("tle.js");
+
+var jsonParser = bodyParser.json();
+var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname + "/index.html"));
@@ -22,6 +26,12 @@ app.get("/space.jpeg", (req, res) => {
   res.sendFile(path.join(__dirname + "/space.jpeg"));
 });
 
+app.post("/position", jsonParser, (req, res) => {
+  console.log(req.body.data);
+  const result = getLatLng(req.body.data);
+  res.send(result);
+});
+
 const tle = `ISS (ZARYA)
 1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
 2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
@@ -36,12 +46,9 @@ function getTle() {
     });
 }
 
-function getLatLng() {
-  const optionalTimestampMS = 1502342329860;
-  const latLongObj = getLatLngObj(tle, optionalTimestampMS);
-
-  console.log(latLongObj);
+function getLatLng(time) {
+  const latLongObj = getLatLngObj(tle, time);
+  return latLongObj;
 }
 
-getLatLng();
 getTle();
