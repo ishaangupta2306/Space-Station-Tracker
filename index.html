@@ -98,7 +98,11 @@
 
         var intervalId = window.setInterval(() => {
           if (moving) move();
+
+          updateSatellites();
         }, 3000);
+
+        drawSatellites();
 
         const form = document.getElementById("date-time");
         form.addEventListener("submit", onSubmit);
@@ -174,9 +178,12 @@
           wwd.redraw();
         }
 
-        function drawSatellites() {
-          var satteliteLayer = new WorldWind.RenderableLayer("Satellites");
+        var satelliteLayer = new WorldWind.RenderableLayer("Satellites");
+        wwd.addLayer(satelliteLayer);
 
+        var satellites = [];
+
+        function drawSatellites() {
           axios.get("http://localhost:3000/sattelite").then((res) => {
             console.log(res.data);
 
@@ -190,13 +197,29 @@
               var placemark = new WorldWind.Placemark(position, false);
               placemark.label = data.name;
               placemark.alwaysOnTop = true;
-              satteliteLayer.addRenderable(placemark);
-              wwd.addLayer(satteliteLayer);
+              satelliteLayer.addRenderable(placemark);
+              satellites.push(placemark);
               wwd.redraw();
             });
           });
         }
-        drawSatellites();
+
+        function updateSatellites() {
+          axios.get("http://localhost:3000/sattelite").then((res) => {
+            console.log(res.data);
+
+            res.data.map((data, index) => {
+              var position = new WorldWind.Position(
+                data.position.lat,
+                data.position.lng,
+                1000e3
+              );
+
+              satellites[index].position = position;
+              wwd.redraw();
+            });
+          });
+        }
       }
     </script>
 
@@ -270,6 +293,7 @@
           float: bottom;
           position: fixed;
           margin-left: 60%;
+          margin-top: 30%;
         }
       </style>
     </div>

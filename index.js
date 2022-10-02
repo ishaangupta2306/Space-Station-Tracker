@@ -40,11 +40,8 @@ app.get("/sattelite", async (req, res) => {
   const response = [];
 
   const tleData = await getTle();
-
-  console.log(tleData);
   tleData.map((item) => {
     var position = getLatLng(item, null);
-    console.log(item);
     var result = {
       name: item.substring(0, item.indexOf("\n")),
       position: position,
