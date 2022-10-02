@@ -28,15 +28,15 @@
         // Add a compass, a coordinates display and some view controls to the WorldWindow.
 
         const compassLayer = new WorldWind.CompassLayer();
-        const offset = new WorlWind.Offset(
-          WOrlWind.OFFSET_PIXELS,
-          10,
-          WorldWind.OFFSET_PIXELS,
-          10
-        );
-        const compass = new WorldWind.Compass(offset);
+        // const offset = new WorlWind.Offset(
+        //   WorlWind.OFFSET_PIXELS,
+        //   50,
+        //   WorldWind.OFFSET_PIXELS,
+        //   50
+        // );
+        // const compass = new WorldWind.Compass(offset);
 
-        compassLayer.add(compass);
+        // compassLayer.addRenderable(compass);
         wwd.addLayer(compassLayer);
         wwd.addLayer(new WorldWind.CompassLayer());
         wwd.addLayer(new WorldWind.CoordinatesDisplayLayer(wwd));
@@ -242,8 +242,7 @@
           background: slategrey;
           float: bottom;
           position: fixed;
-          margin-top: 35%;
-          margin-left: 50%;
+          margin-left: 60%;
         }
       </style>
     </div>
