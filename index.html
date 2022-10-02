@@ -97,9 +97,10 @@
         // Define a position for locating the model
 
         var intervalId = window.setInterval(() => {
-          if (moving) move();
-
-          updateSatellites();
+          if (moving) {
+            move();
+            updateSatellites();
+          }
         }, 3000);
 
         drawSatellites();
@@ -162,7 +163,7 @@
 
           var pathPositions = [];
 
-          curr.map((item) => {
+          next.map((item) => {
             if (Array.isArray(item)) {
               var position = new WorldWind.Position(item[0], item[1], 1000e3);
               pathPositions.push(position);

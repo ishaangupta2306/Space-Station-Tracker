@@ -28,7 +28,8 @@ app.get("/space.jpeg", (req, res) => {
 
 app.post("/position", jsonParser, (req, res) => {
   console.log(req.body.data);
-  const result = getLatLng(req.body.data);
+
+  const result = getLatLng(tleData[0], req.body.data);
   res.send(result);
 });
 
@@ -57,8 +58,9 @@ const tle = `ISS (ZARYA)
 1 25544U 98067A   22275.03521722  .00046746  00000+0  83199-3 0  9999
 2 25544  51.6418 167.2146 0003169 263.1060 229.2717 15.49661688361757`;
 
+var tleData = [];
+
 function getTle() {
-  var tleData = [];
   return axios
     .get(
       "https://celestrak.org/NORAD/elements/gp.php?GROUP=stations&FORMAT=tle"
@@ -92,7 +94,7 @@ function getLatLng(tle, time) {
 
 async function getTrajectory() {
   return await getGroundTracks({
-    tle: tle,
+    tle: tleData[0],
     startTimeMs: Date.now(),
     stepMS: 1000,
     isLngLatFormat: true,
